@@ -1,0 +1,65 @@
+var child_process = require('child_process');
+
+const http = require('http')
+const fs   = require('fs')
+const port = 80
+
+http.createServer(function (req, res) {
+	
+	res.writeHead(200, { 'content-type': 'text/html' })
+
+	if ( req.url == 'favicon.ico' ){
+
+		console.log(req.url)
+
+	}
+
+	if (req.url == '/')
+
+	child_process.execFile('test5', function(error, data, stderr){
+
+		var parse = JSON.parse(data);
+
+		var content = "<style>table { font-family: arial, sans-serif; border-collapse: collapse; } td, th { border: 1px solid #dddddd; text-align: left; padding: 8px; }</style><table>"
+
+		var i = 0
+
+		function space(max){
+			let cc = ""
+			for ( let i = 0 ; i < max;  i++ )
+			cc += "<td></td>"
+			return cc
+		}
+
+		function jsonToTable(x){
+			
+			for ( y of Object.keys(x) ) {
+		
+				if ( typeof x[y] != 'object'){
+			
+					content +=  "<tr>"+space(i)+"<td style='background-color: #eee;font&#45weight: bold;'>"+y+"</td><td>"+x[y]+"</td></tr>"
+				
+				}else{
+
+					content += "<tr>"+space(i)+"<td style='background-color: #eee;font&#45weight: bold;'>"+y+"</td></tr>"
+					
+					i++
+
+					jsonToTable(x[y])
+
+					i--
+				
+				}
+			}
+
+			return content
+		
+		}
+
+		res.end(jsonToTable(parse) + "</table>")
+
+	});
+  
+}).listen(port)
+
+console.log(`Running at port  ${port}`)
